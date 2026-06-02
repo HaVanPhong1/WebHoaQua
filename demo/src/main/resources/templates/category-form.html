@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: adminLayout('Danh mục - Thêm / Sửa')">
+    <section>
+        <div class="page-actions">
+            <a class="btn btn-secondary" th:href="@{/admin/categories}">Quay lại danh mục</a>
+        </div>
+        <div class="card p-4 page-section">
+            <form th:action="@{/admin/categories/save}" th:object="${category}" method="post">
+                <input type="hidden" th:field="*{id}" />
+                <div class="mb-3">
+                    <label class="form-label">Tên</label>
+                    <input class="form-control" th:field="*{name}" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mô tả</label>
+                    <textarea class="form-control" th:field="*{description}" rows="4"></textarea>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" type="submit">Lưu</button>
+                    <a class="btn btn-outline-secondary" th:href="@{/admin/categories}">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </section>
+</html>

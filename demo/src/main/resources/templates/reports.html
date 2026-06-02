@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: adminLayout('Báo cáo')">
+    <section>
+        <div class="row quick-cards">
+            <div class="col-md-4">
+                <div class="quick-card">
+                    <h5>Doanh thu 30 ngày</h5>
+                    <p class="fs-4 fw-semibold" th:text="${totalRevenue}">0</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="quick-card">
+                    <h5>Đơn hàng 30 ngày</h5>
+                    <p class="fs-4 fw-semibold" th:text="${orderCount}">0</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="quick-card">
+                    <h5>Khách hàng</h5>
+                    <p class="fs-4 fw-semibold" th:text="${customerCount}">0</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</html>

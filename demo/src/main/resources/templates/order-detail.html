@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: adminLayout('Chi tiết đơn hàng')">
+    <section>
+        <div class="page-actions">
+            <a class="btn btn-secondary" th:href="@{/admin/orders}">Quay lại đơn hàng</a>
+        </div>
+        <div class="row g-4 page-section">
+            <div class="col-lg-5">
+                <div class="card p-4">
+                    <h5>Thông tin đơn hàng</h5>
+                    <p><strong>#:</strong> <span th:text="${order.id}"></span></p>
+                    <p><strong>Khách hàng:</strong> <span th:text="${order.customer != null ? order.customer.name : 'Không xác định'}"></span></p>
+                    <p><strong>Trạng thái:</strong> <span th:text="${order.status}"></span></p>
+                    <p><strong>Ngày tạo:</strong> <span th:text="${order.createdAt}"></span></p>
+                    <p><strong>Tổng tiền:</strong> <span th:text="${order.totalAmount}"></span></p>
+                </div>
+                <div class="card p-4">
+                    <h5>Cập nhật trạng thái</h5>
+                    <form th:action="@{/admin/orders/update-status}" method="post">
+                        <input type="hidden" name="orderId" th:value="${order.id}" />
+                        <div class="mb-3">
+                            <select class="form-select" name="status">
+                                <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}" th:selected="${status} == ${order.status}"></option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" type="submit">Cập nhật</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="card p-4">
+                    <h5>Chi tiết sản phẩm</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Số lượng</th>
+                                <th>Giá đơn vị</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="item : ${order.items}">
+                                <td th:text="${item.product != null ? item.product.name : 'N/A'}"></td>
+                                <td th:text="${item.quantity}"></td>
+                                <td th:text="${item.unitPrice}"></td>
+                                <td th:text="${item.unitPrice.multiply(T(java.math.BigDecimal).valueOf(item.quantity))}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</html>
+</html>

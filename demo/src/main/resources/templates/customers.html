@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: adminLayout('Khách hàng')">
+    <section>
+        <div class="page-actions">
+            <a class="btn btn-primary" th:href="@{/admin/customers/new}">Thêm khách hàng</a>
+        </div>
+        <div class="table-responsive page-section">
+            <table class="table table-bordered table-hover align-middle">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>Điện thoại</th>
+                    <th>Địa chỉ</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="customer : ${customers}">
+                    <td th:text="${customer.id}"></td>
+                    <td th:text="${customer.name}"></td>
+                    <td th:text="${customer.email}"></td>
+                    <td th:text="${customer.phone}"></td>
+                    <td th:text="${customer.address}"></td>
+                    <td th:text="${customer.active ? 'Hoạt động' : 'Khóa'}"></td>
+                    <td class="text-center">
+                        <a class="btn btn-sm btn-warning me-1" th:href="@{/admin/customers/edit/{id}(id=${customer.id})}">Sửa</a>
+                        <a class="btn btn-sm btn-danger" th:href="@{/admin/customers/delete/{id}(id=${customer.id})}">Xóa</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</html>

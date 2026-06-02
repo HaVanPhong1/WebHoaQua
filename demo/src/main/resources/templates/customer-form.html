@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: adminLayout('Khách hàng - Thêm / Sửa')">
+    <section>
+        <div class="page-actions">
+            <a class="btn btn-secondary" th:href="@{/admin/customers}">Quay lại khách hàng</a>
+        </div>
+        <div class="card p-4 page-section">
+            <form th:action="@{/admin/customers/save}" th:object="${customer}" method="post">
+                <input type="hidden" th:field="*{id}" />
+                <div class="row gx-4">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tên</label>
+                        <input class="form-control" th:field="*{name}" required />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Email</label>
+                        <input class="form-control" type="email" th:field="*{email}" required />
+                    </div>
+                </div>
+                <div class="row gx-4">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Điện thoại</label>
+                        <input class="form-control" th:field="*{phone}" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Địa chỉ</label>
+                        <input class="form-control" th:field="*{address}" />
+                    </div>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" th:field="*{active}" />
+                    <label class="form-check-label">Kích hoạt</label>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" type="submit">Lưu</button>
+                    <a class="btn btn-outline-secondary" th:href="@{/admin/customers}">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </section>
+</html>

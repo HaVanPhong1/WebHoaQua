@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: adminLayout('Tài khoản')">
+    <section>
+        <div class="page-actions">
+            <a class="btn btn-primary" th:href="@{/admin/accounts/new}">Thêm tài khoản</a>
+        </div>
+        <div class="table-responsive page-section">
+            <table class="table table-bordered table-hover align-middle">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Username</th>
+                    <th>Họ tên</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="account : ${accounts}">
+                    <td th:text="${account.id}"></td>
+                    <td th:text="${account.username}"></td>
+                    <td th:text="${account.fullName}"></td>
+                    <td th:text="${account.email}"></td>
+                    <td th:text="${account.role}"></td>
+                    <td th:text="${account.active ? 'Hoạt động' : 'Khóa'}"></td>
+                    <td class="text-center">
+                        <a class="btn btn-sm btn-warning me-1" th:href="@{/admin/accounts/edit/{id}(id=${account.id})}">Sửa</a>
+                        <a class="btn btn-sm btn-danger" th:href="@{/admin/accounts/delete/{id}(id=${account.id})}">Xóa</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: adminLayout('Đơn hàng')">
+    <section>
+        <div class="table-responsive page-section">
+            <table class="table table-bordered table-hover align-middle">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Khách hàng</th>
+                    <th>Trạng thái</th>
+                    <th>Tổng tiền</th>
+                    <th>Ngày tạo</th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.id}"></td>
+                    <td th:text="${order.customer != null ? order.customer.name : 'Khách vãng lai'}"></td>
+                    <td th:text="${order.status}"></td>
+                    <td th:text="${order.totalAmount}"></td>
+                    <td th:text="${order.createdAt}"></td>
+                    <td class="text-center">
+                        <a class="btn btn-sm btn-info" th:href="@{/admin/orders/{id}(id=${order.id})}">Chi tiết</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</html>

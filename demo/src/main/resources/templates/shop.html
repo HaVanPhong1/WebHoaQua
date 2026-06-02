@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <title>FruitShop - Chợ trái cây tươi</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" th:href="@{/css/shop.css}" />
+</head>
+<body class="shop-body">
+<header class="store-header">
+    <div class="container d-flex flex-wrap align-items-center justify-content-between py-3">
+        <a class="store-logo" th:href="@{/}">FruitShop</a>
+        <nav class="store-nav d-flex gap-3 align-items-center">
+            <a th:href="@{/shop}">Trang chủ</a>
+            
+            <!-- Nút bật giỏ hàng -->
+            <button class="btn btn-link position-relative text-dark p-0 me-2" id="cartToggleBtn" style="text-decoration: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cartBadge" style="font-size: 0.7rem; display: none;">0</span>
+            </button>
+
+            <a sec:authorize="isAnonymous()" th:href="@{/register}">Đăng ký</a>
+            <a sec:authorize="isAnonymous()" th:href="@{/login}">Đăng nhập</a>
+            
+            <div sec:authorize="isAuthenticated()" class="dropdown">
+                <button class="btn btn-outline-success btn-sm dropdown-toggle" type="button" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Chào, <span sec:authentication="name">Tài khoản</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                    <li sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')">
+                        <a class="dropdown-item" th:href="@{/admin/dashboard}">Kênh quản lý</a>
+                    </li>
+                    <li>
+                        <form th:action="@{/logout}" method="post" class="m-0">
+                            <button type="submit" class="dropdown-item text-danger border-0 bg-transparent w-100 text-start">Đăng xuất</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</header>
+<section class="hero-section">
+    <div class="container row gx-5 align-items-center">
+        <div class="col-lg-6">
+            <p class="eyebrow">Trái cây tươi mỗi ngày</p>
+            <h1>Chọn trái cây ngon, giao nhanh trong ngày</h1>
+            <p class="hero-text">FruitShop mang đến giỏ trái cây sạch, ngọt tự nhiên và ưu đãi cho khách hàng thân thiết.</p>
+            <div class="d-flex gap-2 flex-wrap">
+                <a sec:authorize="isAnonymous()" class="btn btn-outline-success btn-lg" th:href="@{/login}">Đăng nhập mua hàng</a>
+                <a class="btn btn-success btn-lg" href="#products">Bắt đầu mua sắm</a>
+            </div>
+        </div>
+        <div class="col-lg-6 text-center hero-image">
+            <img src="https://images.unsplash.com/photo-1574226516831-e1dff420e8f8?auto=format&fit=crop&w=900&q=80" alt="Trái cây tươi" />
+        </div>
+    </div>
+</section>
+<section id="products" class="container category-bar mt-5">
+    <div class="d-flex flex-wrap gap-2">
+        <a class="category-pill" th:classappend="${selectedCategoryId} == null ? 'active'" th:href="@{/shop}">Tất cả</a>
+        <a class="category-pill" th:each="category : ${categories}"
+           th:href="@{'/shop?categoryId=' + ${category.id}}"
+           th:text="${category.name}"
+           th:classappend="${category.id} == ${selectedCategoryId} ? ' active'">
+        </a>
+    </div>
+</section>
+<section class="container product-grid mt-4">
+    <div class="row gy-4">
+        <div class="col-md-4" th:each="product : ${products}">
+            <div class="card product-card h-100">
+                <div class="product-card-image">
+                    <img th:if="${product.image != null}" th:src="${product.image}" alt="" />
+                    <div th:if="${product.image == null}" class="product-placeholder">
+                        <span th:text="${product.name.substring(0, 1)}"></span>
+                    </div>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <p class="product-category text-success" th:text="${product.category != null ? product.category.name : 'Trái cây'}"></p>
+                    <h5 class="card-title" th:text="${product.name}"></h5>
+                    <p class="product-desc text-muted" th:text="${product.description}"></p>
+                    <div class="mt-auto d-flex align-items-center justify-content-between">
+                        <span class="product-price" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 2, 'POINT')} + '₫'"></span>
+                        <button class="btn btn-sm btn-success add-to-cart-btn" 
+                                th:data-id="${product.id}" 
+                                th:disabled="${product.stock <= 0}"
+                                th:text="${product.stock > 0 ? 'Thêm giỏ' : 'Hết hàng'}">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<footer class="shop-footer mt-5 py-4 text-center text-muted">
+    <div class="container">FruitShop - trái cây tươi sạch, giao nhanh trong ngày.</div>
+</footer>
+
+<!-- Lớp phủ giỏ hàng (Backdrop) -->
+<div class="cart-backdrop" id="cartBackdrop"></div>
+
+<!-- Sidebar Giỏ hàng -->
+<div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+        <h4>Giỏ hàng của bạn</h4>
+        <button class="cart-close-btn" id="cartCloseBtn">&times;</button>
+    </div>
+    <div class="cart-items-list" id="cartItemsContainer">
+        <!-- Được điền động bằng JavaScript -->
+    </div>
+    <div class="cart-footer">
+        <div class="cart-total-row">
+            <span>Tổng cộng:</span>
+            <span id="cartTotalVal">0₫</span>
+        </div>
+        <button class="btn btn-success checkout-btn" id="checkoutBtn">Thanh toán</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Elements
+    const cartToggleBtn = document.getElementById('cartToggleBtn');
+    const cartCloseBtn = document.getElementById('cartCloseBtn');
+    const cartDrawer = document.getElementById('cartDrawer');
+    const cartBackdrop = document.getElementById('cartBackdrop');
+    const cartItemsContainer = document.getElementById('cartItemsContainer');
+    const cartTotalVal = document.getElementById('cartTotalVal');
+    const cartBadge = document.getElementById('cartBadge');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+
+    // Toggle cart drawer
+    function openCart() {
+        loadCartItems();
+        cartDrawer.classList.add('show');
+        cartBackdrop.classList.add('show');
+    }
+
+    function closeCart() {
+        cartDrawer.classList.remove('show');
+        cartBackdrop.classList.remove('show');
+    }
+
+    cartToggleBtn.addEventListener('click', openCart);
+    cartCloseBtn.addEventListener('click', closeCart);
+    cartBackdrop.addEventListener('click', closeCart);
+
+    // Format currency helper
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('vi-VN').format(value) + '₫';
+    }
+
+    // Load cart items from server
+    async function loadCartItems() {
+        try {
+            const response = await fetch('/shop/cart/items');
+            const data = await response.json();
+            renderCart(data.items, data.total, data.totalItems);
+        } catch (error) {
+            console.error('Lỗi khi tải giỏ hàng:', error);
+        }
+    }
+
+    // Render cart HTML
+    function renderCart(items, total, totalItems) {
+        // Update badge
+        if (totalItems > 0) {
+            cartBadge.innerText = totalItems;
+            cartBadge.style.display = 'inline-block';
+        } else {
+            cartBadge.style.display = 'none';
+        }
+
+        // Update total
+        cartTotalVal.innerText = formatCurrency(total);
+
+        // Render list
+        if (!items || items.length === 0) {
+            cartItemsContainer.innerHTML = '<div class="text-center text-muted py-5"><p>Giỏ hàng trống</p></div>';
+            checkoutBtn.disabled = true;
+            return;
+        }
+
+        checkoutBtn.disabled = false;
+        let html = '';
+        items.forEach(item => {
+            html += `
+                <div class="cart-item">
+                    <img src="${item.image || '/images/default.png'}" class="cart-item-img" alt="${item.name}">
+                    <div class="cart-item-info">
+                        <h5 class="cart-item-title">${item.name}</h5>
+                        <span class="cart-item-price">${formatCurrency(item.price)}</span>
+                        <div class="cart-item-qty-control">
+                            <button class="qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                            <span class="qty-val">${item.quantity}</span>
+                            <button class="qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity + 1})" ${item.quantity >= item.stock ? 'disabled' : ''}>+</button>
+                        </div>
+                        <button class="cart-item-remove" onclick="removeItem(${item.id})">Xóa</button>
+                    </div>
+                </div>
+            `;
+        });
+        cartItemsContainer.innerHTML = html;
+    }
+
+    // Add to cart action
+    async function addToCart(productId) {
+        try {
+            const formData = new FormData();
+            formData.append('productId', productId);
+            
+            const response = await fetch('/shop/cart/add', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success) {
+                // Update badge and open cart
+                cartBadge.innerText = data.totalItems;
+                cartBadge.style.display = 'inline-block';
+                openCart();
+            }
+        } catch (error) {
+            console.error('Lỗi khi thêm sản phẩm:', error);
+        }
+    }
+
+    // Update quantity
+    async function updateQuantity(productId, newQty) {
+        try {
+            const formData = new FormData();
+            formData.append('productId', productId);
+            formData.append('quantity', newQty);
+            
+            const response = await fetch('/shop/cart/update', {
+                method: 'POST',
+                body: formData
+            });
+            if (response.ok) {
+                loadCartItems();
+            }
+        } catch (error) {
+            console.error('Lỗi khi cập nhật số lượng:', error);
+        }
+    }
+
+    // Remove item
+    async function removeItem(productId) {
+        try {
+            const formData = new FormData();
+            formData.append('productId', productId);
+            
+            const response = await fetch('/shop/cart/remove', {
+                method: 'POST',
+                body: formData
+            });
+            if (response.ok) {
+                loadCartItems();
+            }
+        } catch (error) {
+            console.error('Lỗi khi xóa sản phẩm:', error);
+        }
+    }
+
+    // Checkout
+    checkoutBtn.addEventListener('click', async () => {
+        checkoutBtn.disabled = true;
+        checkoutBtn.innerText = 'Đang xử lý...';
+        try {
+            const response = await fetch('/shop/cart/checkout', {
+                method: 'POST'
+            });
+            if (response.status === 401) {
+                alert('Vui lòng đăng nhập trước khi thanh toán!');
+                window.location.href = '/login';
+                return;
+            }
+            const data = await response.json();
+            if (response.ok && data.success) {
+                alert('Đặt hàng thành công! Hóa đơn đã được lưu.');
+                closeCart();
+                window.location.reload(); // Reload to refresh stocks
+            } else {
+                alert(data.error || 'Đã có lỗi xảy ra khi thanh toán.');
+                checkoutBtn.disabled = false;
+                checkoutBtn.innerText = 'Thanh toán';
+            }
+        } catch (error) {
+            console.error('Lỗi khi thanh toán:', error);
+            alert('Lỗi kết nối máy chủ.');
+            checkoutBtn.disabled = false;
+            checkoutBtn.innerText = 'Thanh toán';
+        }
+    });
+
+    // Attach event listeners to all Add to Cart buttons
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const productId = btn.getAttribute('data-id');
+            addToCart(productId);
+        });
+    });
+
+    // Initial load for badge
+    window.addEventListener('DOMContentLoaded', () => {
+        loadCartItems();
+    });
+</script>
+</body>
+</html>
