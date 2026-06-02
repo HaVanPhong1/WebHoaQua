@@ -128,7 +128,81 @@ Tạo database:
 ```sql
 CREATE DATABASE fruitshop2;
 ```
+thêm dữ liệu:
+```sql
+USE [fruitshop2]
+GO
 
+-- 1. BẢNG CATEGORIES (DANH MỤC)
+SET IDENTITY_INSERT [dbo].[categories] ON 
+
+INSERT [dbo].[categories] ([id], [description], [name]) VALUES (1, N'Trái cây tươi sạch', N'Trái cây')
+INSERT [dbo].[categories] ([id], [description], [name]) VALUES (2, N'Rau củ hữu cơ', N'Rau củ')
+INSERT [dbo].[categories] ([id], [description], [name]) VALUES (3, N'Nước ép và trà', N'Đồ uống')
+
+SET IDENTITY_INSERT [dbo].[categories] OFF
+GO
+
+-- 2. BẢNG PRODUCTS (SẢN PHẨM)
+SET IDENTITY_INSERT [dbo].[products] ON 
+
+INSERT [dbo].[products] ([id], [description], [image], [name], [price], [stock], [category_id]) VALUES (1, N'Táo hữu cơ', N'tao-do.jpg', N'Táo đỏ', CAST(25000.00 AS Numeric(38, 2)), 97, 1)
+INSERT [dbo].[products] ([id], [description], [image], [name], [price], [stock], [category_id]) VALUES (2, N'Cam tươi Việt Nam', N'cam-vang.jpg', N'Cam vàng', CAST(22000.00 AS Numeric(38, 2)), 78, 1)
+INSERT [dbo].[products] ([id], [description], [image], [name], [price], [stock], [category_id]) VALUES (3, N'Cà rốt sạch', N'ca-rot.jpg', N'Cà rốt', CAST(15000.00 AS Numeric(38, 2)), 119, 2)
+INSERT [dbo].[products] ([id], [description], [image], [name], [price], [stock], [category_id]) VALUES (4, N'Nước ép cam tươi', N'nuoc-ep-cam.jpg', N'Nước ép cam', CAST(30000.00 AS Numeric(38, 2)), 50, 3)
+INSERT [dbo].[products] ([id], [description], [image], [name], [price], [stock], [category_id]) VALUES (5, N'ngon', N'', N'nho', CAST(1.00 AS Numeric(38, 2)), 20, 1)
+
+SET IDENTITY_INSERT [dbo].[products] OFF
+GO
+
+-- 3. BẢNG CUSTOMERS (KHÁCH HÀNG)
+SET IDENTITY_INSERT [dbo].[customers] ON 
+
+INSERT [dbo].[customers] ([id], [active], [address], [email], [name], [phone]) VALUES (1, 1, N'Hà Nội', N'nguyenvana@example.com', N'Nguyễn Văn A', N'0901234567')
+INSERT [dbo].[customers] ([id], [active], [address], [email], [name], [phone]) VALUES (2, 1, N'Hồ Chí Minh', N'tranthib@example.com', N'Trần Thị B', N'0912345678')
+INSERT [dbo].[customers] ([id], [active], [address], [email], [name], [phone]) VALUES (3, 1, N'cccc', N'phongha0948@gmail.com', N'phong', N'9048533142')
+INSERT [dbo].[customers] ([id], [active], [address], [email], [name], [phone]) VALUES (4, 1, N'fffff', N'phongha094d8@gmail.com', N'phong', N'9048533142')
+INSERT [dbo].[customers] ([id], [active], [address], [email], [name], [phone]) VALUES (5, 1, N'ddddd', N'phongha04d8@gmail.com', N'phong', N'9048533142')
+INSERT [dbo].[customers] ([id], [active], [address], [email], [name], [phone]) VALUES (6, 1, N'Bắc Giang', N'dwadwadawdad@gmail.com', N'Hà Văn Phong', N'0948533142')
+INSERT [dbo].[customers] ([id], [active], [address], [email], [name], [phone]) VALUES (7, 1, N'dddd', N'dwadwawdad@gmail.com', N'Hà Văn Phong', N'0948533142')
+
+SET IDENTITY_INSERT [dbo].[customers] OFF
+GO
+
+-- 4. BẢNG SHOP_ORDERS (ĐƠN HÀNG)
+SET IDENTITY_INSERT [dbo].[shop_orders] ON 
+
+INSERT [dbo].[shop_orders] ([id], [created_at], [status], [total_amount], [customer_id]) VALUES (1, CAST(N'2026-05-29T12:31:57.9633330' AS DateTime2), N'NEW', CAST(79000.00 AS Numeric(38, 2)), 1)
+INSERT [dbo].[shop_orders] ([id], [created_at], [status], [total_amount], [customer_id]) VALUES (2, CAST(N'2026-06-01T13:47:29.2579440' AS DateTime2), N'NEW', CAST(72000.00 AS Numeric(38, 2)), 7)
+INSERT [dbo].[shop_orders] ([id], [created_at], [status], [total_amount], [customer_id]) VALUES (3, CAST(N'2026-06-01T18:32:53.1735130' AS DateTime2), N'NEW', CAST(62000.00 AS Numeric(38, 2)), 7)
+
+SET IDENTITY_INSERT [dbo].[shop_orders] OFF
+GO
+
+-- 5. BẢNG ORDER_ITEMS (CHI TIẾT ĐƠN HÀNG)
+SET IDENTITY_INSERT [dbo].[order_items] ON 
+
+INSERT [dbo].[order_items] ([id], [quantity], [unit_price], [order_id], [product_id]) VALUES (1, 2, CAST(25000.00 AS Numeric(38, 2)), 1, 1)
+INSERT [dbo].[order_items] ([id], [quantity], [unit_price], [order_id], [product_id]) VALUES (2, 1, CAST(30000.00 AS Numeric(38, 2)), 1, 4)
+INSERT [dbo].[order_items] ([id], [quantity], [unit_price], [order_id], [product_id]) VALUES (3, 2, CAST(25000.00 AS Numeric(38, 2)), 2, 1)
+INSERT [dbo].[order_items] ([id], [quantity], [unit_price], [order_id], [product_id]) VALUES (4, 1, CAST(22000.00 AS Numeric(38, 2)), 2, 2)
+INSERT [dbo].[order_items] ([id], [quantity], [unit_price], [order_id], [product_id]) VALUES (5, 1, CAST(25000.00 AS Numeric(38, 2)), 3, 1)
+INSERT [dbo].[order_items] ([id], [quantity], [unit_price], [order_id], [product_id]) VALUES (6, 1, CAST(22000.00 AS Numeric(38, 2)), 3, 2)
+INSERT [dbo].[order_items] ([id], [quantity], [unit_price], [order_id], [product_id]) VALUES (7, 1, CAST(15000.00 AS Numeric(38, 2)), 3, 3)
+
+SET IDENTITY_INSERT [dbo].[order_items] OFF
+GO
+
+-- 6. BẢNG USER_ACCOUNTS (TÀI KHOẢN NGƯỜI DÙNG)
+SET IDENTITY_INSERT [dbo].[user_accounts] ON 
+
+INSERT [dbo].[user_accounts] ([id], [active], [email], [full_name], [password], [role], [username]) VALUES (1, 1, N'admin@fruitshop.local', N'Quản trị viên', N'$2a$10$dinjLbTWV1BBvntrHiQA7OC0j0QCSi3XaPB8/Dk9Tyf6ha7Pkfl42', N'ROLE_ADMIN', N'admin')
+INSERT [dbo].[user_accounts] ([id], [active], [email], [full_name], [password], [role], [username]) VALUES (3, 1, N'manager@fruitshop.com', N'Quản lý', N'manager123', N'ROLE_MANAGER', N'manager')
+INSERT [dbo].[user_accounts] ([id], [active], [email], [full_name], [password], [role], [username]) VALUES (6, 1, N'dwadwawdad@gmail.com', N'Hà Văn Phong', N'$2a$10$VYof6XEDkUQ4pwDeTYTzz.KhfdK5FuuEb9L2.zTcPsl4dk5l20HCO', N'ROLE_CUSTOMER', N'phong')
+
+SET IDENTITY_INSERT [dbo].[user_accounts] OFF
+GO
+```
 sau đó chạy lại dự án.
 
 ---
