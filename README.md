@@ -128,7 +128,7 @@ Tạo database:
 ```sql
 CREATE DATABASE fruitshop2;
 ```
-thêm dữ liệu:
+thêm dữ liệu(chạy 1 lần đi để nó tự tạo bảng xong mới add đc dữ liệu):
 ```sql
 USE [fruitshop2]
 GO
