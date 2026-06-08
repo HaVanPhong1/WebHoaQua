@@ -27,11 +27,24 @@
                     <td th:text="${customer.active ? 'Hoạt động' : 'Khóa'}"></td>
                     <td class="text-center">
                         <a class="btn btn-sm btn-warning me-1" th:href="@{/admin/customers/edit/{id}(id=${customer.id})}">Sửa</a>
-                        <a class="btn btn-sm btn-danger" th:href="@{/admin/customers/delete/{id}(id=${customer.id})}">Xóa</a>
+                        <a class="btn btn-sm btn-danger btn-delete" th:href="@{/admin/customers/delete/{id}(id=${customer.id})}" th:data-name="${customer.name}">Xóa</a>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.btn-delete').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        var name = this.getAttribute('data-name') || 'mục này';
+                        if (!confirm('Bạn có chắc chắn muốn xóa "' + name + '" không?\n\nHành động này không thể hoàn tác!')) {
+                            e.preventDefault();
+                        }
+                    });
+                });
+            });
+        </script>
     </section>
 </html>

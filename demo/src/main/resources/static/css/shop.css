@@ -201,30 +201,34 @@ body {
   z-index: 1040;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: none;
+  transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1), visibility 280ms step-end;
 }
 .cart-backdrop.show {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 /* Cart Drawer Container */
 .cart-drawer {
   position: fixed;
   top: 0;
-  right: -420px;
+  right: 0;
   width: 100%;
   max-width: 420px;
   height: 100%;
   background: #ffffff;
-  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.12);
   z-index: 1050;
-  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(100%);
+  will-change: transform;
+  transition: transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
 }
 .cart-drawer.show {
-  right: 0;
+  transform: translateX(0);
 }
 
 .cart-header {
@@ -358,4 +362,40 @@ body {
   font-weight: 600;
   border-radius: 0.75rem;
   transition: all 0.2s ease;
+}
+
+/* Styling for addon boxes */
+.addon-box {
+    display: block;
+    cursor: pointer;
+    margin: 0;
+}
+.addon-box input {
+    display: none;
+}
+.addon-box-content {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    color: #495057;
+    transition: all 0.2s;
+    text-align: center;
+    position: relative;
+}
+.addon-box input:checked + .addon-box-content {
+    border-color: #5b2a86;
+    color: #5b2a86;
+    font-weight: 600;
+}
+.addon-box input:checked + .addon-box-content::after {
+    content: '?';
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    background: #5b2a86;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 5px;
+    border-bottom-left-radius: 4px;
 }

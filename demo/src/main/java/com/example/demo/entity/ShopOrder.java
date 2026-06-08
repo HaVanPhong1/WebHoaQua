@@ -64,6 +64,11 @@ public class ShopOrder {
         this.createdAt = createdAt;
     }
 
+    public String getFormattedCreatedAt() {
+        if (createdAt == null) return "";
+        return createdAt.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+    }
+
     public BigDecimal getTotalAmount() {
         return totalAmount;
     }
