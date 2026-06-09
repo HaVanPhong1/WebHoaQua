@@ -46,14 +46,35 @@ public class CategoryController {
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute Category category) {
-        categoryRepository.save(category);
+    public String save(@ModelAttribute Category category, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            if (category.getId() != null) {
+                Optional<Category> existingOpt = categoryRepository.findById(category.getId());
+                if (existingOpt.isPresent()) {
+                    Category existing = existingOpt.get();
+                    existing.setName(category.getName());
+                    existing.setDescription(category.getDescription());
+                    categoryRepository.save(existing);
+                    redirectAttributes.addFlashAttribute("successMessage", "Cập nhật danh mục thành công!");
+                    return "redirect:/admin/categories";
+                }
+            }
+            categoryRepository.save(category);
+            redirectAttributes.addFlashAttribute("successMessage", "Thêm danh mục mới thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Đã xảy ra lỗi khi lưu danh mục: " + e.getMessage());
+        }
         return "redirect:/admin/categories";
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
-        categoryRepository.deleteById(id);
+    public String delete(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            categoryRepository.deleteById(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Xóa danh mục thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể xóa danh mục này vì có sản phẩm liên quan hoặc đã tồn tại trong đơn hàng!");
+        }
         return "redirect:/admin/categories";
     }
 }

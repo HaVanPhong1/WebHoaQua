@@ -27,8 +27,18 @@ public class ReportController {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime from = now.minusDays(30);
 
-        model.addAttribute("totalRevenue", orderRepository.totalRevenueBetween(from, now));
-        model.addAttribute("orderCount", orderRepository.countOrdersBetween(from, now));
+        java.math.BigDecimal totalRevenue = orderRepository.totalRevenueBetween(from, now);
+        if (totalRevenue == null) {
+            totalRevenue = java.math.BigDecimal.ZERO;
+        }
+
+        Long orderCount = orderRepository.countOrdersBetween(from, now);
+        if (orderCount == null) {
+            orderCount = 0L;
+        }
+
+        model.addAttribute("totalRevenue", totalRevenue);
+        model.addAttribute("orderCount", orderCount);
         model.addAttribute("customerCount", customerRepository.count());
         return "reports";
     }
