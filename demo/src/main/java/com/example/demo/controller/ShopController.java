@@ -47,17 +47,20 @@ public class ShopController {
     private final CustomerRepository customerRepository;
     private final ShopOrderRepository shopOrderRepository;
     private final UserAccountRepository userAccountRepository;
+    private final com.example.demo.service.discount.DiscountService discountService;
 
     public ShopController(ProductRepository productRepository, 
                           CategoryRepository categoryRepository,
                           CustomerRepository customerRepository,
                           ShopOrderRepository shopOrderRepository,
-                          UserAccountRepository userAccountRepository) {
+                          UserAccountRepository userAccountRepository,
+                          com.example.demo.service.discount.DiscountService discountService) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.customerRepository = customerRepository;
         this.shopOrderRepository = shopOrderRepository;
         this.userAccountRepository = userAccountRepository;
+        this.discountService = discountService;
     }
 
     @GetMapping({"/", "/shop"})
@@ -190,7 +193,22 @@ public class ShopController {
             }
         }
 
-        return ResponseEntity.ok(Map.of("items", items, "total", total, "totalItems", totalItems));
+        java.math.BigDecimal discount = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal payable = total;
+        try {
+            discount = discountService.calculateTotalDiscount(total);
+            if (discount == null) discount = java.math.BigDecimal.ZERO;
+            payable = total.subtract(discount);
+        } catch (Exception ignored) {
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "items", items,
+                "total", total,
+                "discount", discount,
+                "payable", payable,
+                "totalItems", totalItems
+        ));
     }
 
     @PostMapping("/shop/cart/checkout")
@@ -257,6 +275,12 @@ public class ShopController {
             }
         }
         
+        // apply discount
+        order.recalculateTotal();
+        java.math.BigDecimal discount = discountService.calculateTotalDiscount(order.getTotalAmount());
+        order.setDiscountAmount(discount);
+        order.setPayableAmount(order.getTotalAmount().subtract(discount == null ? java.math.BigDecimal.ZERO : discount));
+
         shopOrderRepository.save(order);
         session.removeAttribute("cart");
         

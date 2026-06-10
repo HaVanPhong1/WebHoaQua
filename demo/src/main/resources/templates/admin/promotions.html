@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: adminLayout('Promotions')">
+    <section>
+        <div class="page-actions mb-3">
+            <a class="btn btn-primary" th:href="@{/admin/promotions/new}">Thêm khuyến mãi</a>
+        </div>
+
+        <div class="table-responsive page-section">
+            <table class="table table-bordered table-hover align-middle">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tên</th>
+                    <th>Loại khuyến mãi</th>
+                    <th>Phần trăm</th>
+                    <th>Ngưỡng (VNĐ)</th>
+                    <th>Ngày bắt đầu - Kết thúc / Lặp</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${promotions}">
+                    <td th:text="${p.id}"></td>
+                    <td th:text="${p.name}"></td>
+                    <td>
+                        <span th:switch="${p.type}">
+                            <span th:case="'bulk'"><span class="badge bg-primary">Giảm theo đơn giá</span></span>
+                            <span th:case="'holiday'"><span class="badge bg-info text-dark">Giảm dịp lễ</span></span>
+                            <span th:case="*"><span class="badge bg-secondary" th:text="${p.type}"></span></span>
+                        </span>
+                    </td>
+                    <td th:text="${p.discountPercent != null ? (#numbers.formatDecimal(p.discountPercent, 0, 'COMMA', 2, 'POINT') + '%') : ''}"></td>
+                    <td th:text="${p.threshold != null ? (#numbers.formatDecimal(p.threshold, 0, 'COMMA', 0, 'POINT') + ' ₫') : ''}"></td>
+                    <td>
+                        <div>
+                            <span th:if="${p.startDate != null}" th:text="${p.startDate}"></span>
+                            <span th:if="${p.startDate != null and p.endDate != null}"> - </span>
+                            <span th:if="${p.endDate != null}" th:text="${p.endDate}"></span>
+                        </div>
+                        <div th:if="${p.recurringMonth != null}">Lặp: <span th:text="${p.recurringMonth + '/' + p.recurringDay}"></span></div>
+                    </td>
+                    <td class="text-center">
+                        <form th:action="@{/admin/promotions/toggle/{id}(id=${p.id})}" method="post">
+                            <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button class="btn" th:classappend="${p.active ? 'btn-success' : 'btn-secondary'}" type="submit">
+                                <span th:text="${p.active ? 'Đã kích hoạt' : 'Không kích hoạt'}"></span>
+                            </button>
+                        </form>
+                    </td>
+                    <td class="text-center">
+                        <a class="btn btn-sm btn-warning me-1" th:href="@{/admin/promotions/edit/{id}(id=${p.id})}">Sửa</a>
+                        <form th:action="@{/admin/promotions/delete/{id}(id=${p.id})}" method="post" style="display:inline" onsubmit="return confirm('Xác nhận xóa khuyến mãi này?');">
+                            <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button class="btn btn-sm btn-danger" type="submit">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</html>

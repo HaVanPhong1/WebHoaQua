@@ -1,11 +1,21 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "shop_orders")
@@ -25,6 +35,8 @@ public class ShopOrder {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     private BigDecimal totalAmount = BigDecimal.ZERO;
+    private BigDecimal discountAmount = BigDecimal.ZERO;
+    private BigDecimal payableAmount = BigDecimal.ZERO;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
@@ -77,6 +89,23 @@ public class ShopOrder {
         this.totalAmount = totalAmount;
     }
 
+    public BigDecimal getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public void setDiscountAmount(BigDecimal discountAmount) {
+        this.discountAmount = discountAmount == null ? BigDecimal.ZERO : discountAmount;
+        this.payableAmount = this.totalAmount.subtract(this.discountAmount == null ? BigDecimal.ZERO : this.discountAmount);
+    }
+
+    public BigDecimal getPayableAmount() {
+        return payableAmount;
+    }
+
+    public void setPayableAmount(BigDecimal payableAmount) {
+        this.payableAmount = payableAmount;
+    }
+
     public List<OrderItem> getItems() {
         return items;
     }
@@ -100,5 +129,7 @@ public class ShopOrder {
             }
         }
         this.totalAmount = total;
+        // Recompute payable assuming discountAmount already set
+        this.payableAmount = this.totalAmount.subtract(this.discountAmount == null ? BigDecimal.ZERO : this.discountAmount);
     }
 }
