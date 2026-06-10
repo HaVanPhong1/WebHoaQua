@@ -30,6 +30,8 @@ public class OrderItem {
 
     private BigDecimal unitPrice = BigDecimal.ZERO;
 
+    private String addons;
+
     public OrderItem() {
     }
 
@@ -71,5 +73,13 @@ public class OrderItem {
 
     public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
+    }
+
+    public String getAddons() {
+        return addons;
+    }
+
+    public void setAddons(String addons) {
+        this.addons = addons;
     }
 }

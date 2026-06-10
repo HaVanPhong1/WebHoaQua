@@ -1,34 +1,43 @@
 package com.example.demo.controller;
-import com.example.demo.entity.Product;
-import com.example.demo.entity.Customer;
-import com.example.demo.entity.ShopOrder;
-import com.example.demo.entity.OrderItem;
-import com.example.demo.entity.OrderStatus;
-import com.example.demo.entity.UserAccount;
-import com.example.demo.repository.CategoryRepository;
-import com.example.demo.repository.ProductRepository;
-import com.example.demo.repository.CustomerRepository;
-import com.example.demo.repository.ShopOrderRepository;
-import com.example.demo.repository.UserAccountRepository;
-
+import java.math.BigDecimal;
+import java.security.Principal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.security.Principal;
+import java.util.stream.Collectors;
 
-import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
+
+import com.example.demo.dto.CartItemDto;
+import com.example.demo.entity.Customer;
+import com.example.demo.entity.OrderItem;
+import com.example.demo.entity.OrderStatus;
+import com.example.demo.entity.Product;
+import com.example.demo.entity.ShopOrder;
+import com.example.demo.entity.UserAccount;
+import com.example.demo.pattern.decorator.BaseProductComponent;
+import com.example.demo.pattern.decorator.EngravingDecorator;
+import com.example.demo.pattern.decorator.PeelingDecorator;
+import com.example.demo.pattern.decorator.ProductComponent;
+import com.example.demo.pattern.decorator.WrappingDecorator;
+import com.example.demo.repository.CategoryRepository;
+import com.example.demo.repository.CustomerRepository;
+import com.example.demo.repository.ProductRepository;
+import com.example.demo.repository.ShopOrderRepository;
+import com.example.demo.repository.UserAccountRepository;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class ShopController {
@@ -68,27 +77,68 @@ public class ShopController {
     @PostMapping("/shop/cart/add")
     @ResponseBody
     @SuppressWarnings("unchecked")
-    public ResponseEntity<?> addToCart(@RequestParam Long productId, HttpSession session) {
-        Map<Long, Integer> cart = (Map<Long, Integer>) session.getAttribute("cart");
+    public ResponseEntity<?> addToCart(
+            @RequestParam Long productId,
+            @RequestParam(required = false) String[] addons,
+            @RequestParam(defaultValue = "1") Integer quantity,
+            HttpSession session) {
+            
+        Product product = productRepository.findById(productId).orElse(null);
+        if (product == null) return ResponseEntity.badRequest().body(Map.of("error", "Không tìm thấy sản phẩm"));
+
+        Map<String, CartItemDto> cart = (Map<String, CartItemDto>) session.getAttribute("cart");
         if (cart == null) {
             cart = new HashMap<>();
             session.setAttribute("cart", cart);
         }
-        cart.put(productId, cart.getOrDefault(productId, 0) + 1);
-        int totalItems = cart.values().stream().mapToInt(Integer::intValue).sum();
+
+        // Apply Decorator Pattern
+        ProductComponent component = new BaseProductComponent(product);
+        List<String> selectedAddons = addons != null ? Arrays.asList(addons) : new ArrayList<>();
+        
+        if (selectedAddons.contains("engrave")) {
+            component = new EngravingDecorator(component);
+        }
+        if (selectedAddons.contains("peel")) {
+            component = new PeelingDecorator(component);
+        }
+        if (selectedAddons.contains("wrap")) {
+            component = new WrappingDecorator(component);
+        }
+
+        // Generate a unique key based on productId and selected addons
+        String addonKey = selectedAddons.stream().sorted().collect(Collectors.joining("-"));
+        String cartKey = productId + "_" + addonKey;
+
+        if (cart.containsKey(cartKey)) {
+            CartItemDto existing = cart.get(cartKey);
+            existing.setQuantity(existing.getQuantity() + quantity);
+        } else {
+            CartItemDto newItem = new CartItemDto();
+            newItem.setCartKey(cartKey);
+            newItem.setProductId(productId);
+            newItem.setDisplayName(component.getName());
+            newItem.setUnitPrice(component.getPrice());
+            newItem.setQuantity(quantity);
+            newItem.setImage(product.getImage());
+            newItem.setAddons(component.getAddons());
+            cart.put(cartKey, newItem);
+        }
+
+        int totalItems = cart.values().stream().mapToInt(CartItemDto::getQuantity).sum();
         return ResponseEntity.ok(Map.of("success", true, "totalItems", totalItems));
     }
 
     @PostMapping("/shop/cart/update")
     @ResponseBody
     @SuppressWarnings("unchecked")
-    public ResponseEntity<?> updateCart(@RequestParam Long productId, @RequestParam Integer quantity, HttpSession session) {
-        Map<Long, Integer> cart = (Map<Long, Integer>) session.getAttribute("cart");
-        if (cart != null && cart.containsKey(productId)) {
+    public ResponseEntity<?> updateCart(@RequestParam String cartKey, @RequestParam Integer quantity, HttpSession session) {
+        Map<String, CartItemDto> cart = (Map<String, CartItemDto>) session.getAttribute("cart");
+        if (cart != null && cart.containsKey(cartKey)) {
             if (quantity <= 0) {
-                cart.remove(productId);
+                cart.remove(cartKey);
             } else {
-                cart.put(productId, quantity);
+                cart.get(cartKey).setQuantity(quantity);
             }
         }
         return ResponseEntity.ok(Map.of("success", true));
@@ -97,10 +147,10 @@ public class ShopController {
     @PostMapping("/shop/cart/remove")
     @ResponseBody
     @SuppressWarnings("unchecked")
-    public ResponseEntity<?> removeFromCart(@RequestParam Long productId, HttpSession session) {
-        Map<Long, Integer> cart = (Map<Long, Integer>) session.getAttribute("cart");
+    public ResponseEntity<?> removeFromCart(@RequestParam String cartKey, HttpSession session) {
+        Map<String, CartItemDto> cart = (Map<String, CartItemDto>) session.getAttribute("cart");
         if (cart != null) {
-            cart.remove(productId);
+            cart.remove(cartKey);
         }
         return ResponseEntity.ok(Map.of("success", true));
     }
@@ -109,24 +159,29 @@ public class ShopController {
     @ResponseBody
     @SuppressWarnings("unchecked")
     public ResponseEntity<?> getCartItems(HttpSession session) {
-        Map<Long, Integer> cart = (Map<Long, Integer>) session.getAttribute("cart");
+        Map<String, CartItemDto> cart = (Map<String, CartItemDto>) session.getAttribute("cart");
         List<Map<String, Object>> items = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
         int totalItems = 0;
-        
-        if (cart != null) {
-            for (Map.Entry<Long, Integer> entry : cart.entrySet()) {
-                Product product = productRepository.findById(entry.getKey()).orElse(null);
+
+        if (cart != null && !cart.isEmpty()) {
+            // Batch load products to avoid N+1 queries
+            List<Long> ids = cart.values().stream().map(CartItemDto::getProductId).distinct().toList();
+            List<Product> products = productRepository.findAllById(ids);
+            Map<Long, Product> prodMap = products.stream().collect(Collectors.toMap(Product::getId, p -> p));
+
+            for (CartItemDto item : cart.values()) {
+                Product product = prodMap.get(item.getProductId());
                 if (product != null) {
-                    int qty = entry.getValue();
+                    int qty = item.getQuantity();
                     totalItems += qty;
-                    BigDecimal subtotal = product.getPrice().multiply(BigDecimal.valueOf(qty));
+                    BigDecimal subtotal = item.getUnitPrice().multiply(BigDecimal.valueOf(qty));
                     total = total.add(subtotal);
                     items.add(Map.of(
-                        "id", product.getId(),
-                        "name", product.getName(),
-                        "price", product.getPrice(),
-                        "image", product.getImage() != null ? product.getImage() : "",
+                        "cartKey", item.getCartKey(),
+                        "name", item.getDisplayName(),
+                        "price", item.getUnitPrice(),
+                        "image", item.getImage() != null ? (item.getImage().startsWith("/") ? item.getImage() : "/images/" + item.getImage()) : "/images/default.png",
                         "quantity", qty,
                         "subtotal", subtotal,
                         "stock", product.getStock()
@@ -134,6 +189,7 @@ public class ShopController {
                 }
             }
         }
+
         return ResponseEntity.ok(Map.of("items", items, "total", total, "totalItems", totalItems));
     }
 
@@ -145,7 +201,7 @@ public class ShopController {
         if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Vui lòng đăng nhập trước khi thanh toán."));
         }
-        Map<Long, Integer> cart = (Map<Long, Integer>) session.getAttribute("cart");
+        Map<String, CartItemDto> cart = (Map<String, CartItemDto>) session.getAttribute("cart");
         if (cart == null || cart.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Giỏ hàng của bạn đang trống."));
         }
@@ -170,22 +226,33 @@ public class ShopController {
         order.setStatus(OrderStatus.NEW);
         order.setCreatedAt(LocalDateTime.now());
         
-        for (Map.Entry<Long, Integer> entry : cart.entrySet()) {
-            Product product = productRepository.findById(entry.getKey()).orElse(null);
+        // Batch load products for all cart items
+        List<Long> ids = cart.values().stream().map(CartItemDto::getProductId).distinct().toList();
+        List<Product> products = productRepository.findAllById(ids);
+        Map<Long, Product> prodMap = products.stream().collect(Collectors.toMap(Product::getId, p -> p));
+
+        for (CartItemDto itemDto : cart.values()) {
+            Product product = prodMap.get(itemDto.getProductId());
             if (product != null) {
-                int qtyNeeded = entry.getValue();
+                int qtyNeeded = itemDto.getQuantity();
                 if (product.getStock() < qtyNeeded) {
                     return ResponseEntity.badRequest().body(Map.of("error", "Sản phẩm '" + product.getName() + "' chỉ còn " + product.getStock() + " sản phẩm trong kho."));
                 }
-                
+
                 // Deduct stock
                 product.setStock(product.getStock() - qtyNeeded);
                 productRepository.save(product);
-                
+
                 OrderItem item = new OrderItem();
                 item.setProduct(product);
                 item.setQuantity(qtyNeeded);
-                item.setUnitPrice(product.getPrice());
+                item.setUnitPrice(itemDto.getUnitPrice()); // Save the decorated price
+
+                // Save addons as a comma-separated string
+                if (itemDto.getAddons() != null && !itemDto.getAddons().isEmpty()) {
+                    item.setAddons(String.join(", ", itemDto.getAddons()));
+                }
+
                 order.addItem(item);
             }
         }

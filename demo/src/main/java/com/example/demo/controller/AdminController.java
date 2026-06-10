@@ -13,7 +13,7 @@ public class AdminController {
 
     @GetMapping("/admin/dashboard")
     public String dashboard() {
-        return "dashboard";
+        return "redirect:/admin/reports";
     }
 
     @GetMapping("/login")

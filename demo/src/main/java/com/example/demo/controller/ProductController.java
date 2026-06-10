@@ -53,18 +53,28 @@ public class ProductController {
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute Product product, @RequestParam(required = false) Long categoryId) {
-        if (categoryId != null) {
-            Category category = categoryRepository.findById(categoryId).orElse(null);
-            product.setCategory(category);
+    public String save(@ModelAttribute Product product, @RequestParam(required = false) Long categoryId, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            if (categoryId != null) {
+                Category category = categoryRepository.findById(categoryId).orElse(null);
+                product.setCategory(category);
+            }
+            productRepository.save(product);
+            redirectAttributes.addFlashAttribute("successMessage", "Lưu sản phẩm thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi lưu sản phẩm: " + e.getMessage());
         }
-        productRepository.save(product);
         return "redirect:/admin/products";
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
-        productRepository.deleteById(id);
+    public String delete(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            productRepository.deleteById(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Xóa sản phẩm thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể xóa sản phẩm này vì đã tồn tại trong các đơn hàng!");
+        }
         return "redirect:/admin/products";
     }
 }

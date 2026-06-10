@@ -18,8 +18,8 @@
                     <td th:text="${order.id}"></td>
                     <td th:text="${order.customer != null ? order.customer.name : 'Khách vãng lai'}"></td>
                     <td th:text="${order.status}"></td>
-                    <td th:text="${order.totalAmount}"></td>
-                    <td th:text="${order.createdAt}"></td>
+                    <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                    <td th:text="${order.formattedCreatedAt}"></td>
                     <td class="text-center">
                         <a class="btn btn-sm btn-info" th:href="@{/admin/orders/{id}(id=${order.id})}">Chi tiết</a>
                     </td>
