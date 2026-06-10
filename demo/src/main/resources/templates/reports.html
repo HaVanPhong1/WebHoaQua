@@ -314,18 +314,7 @@
     <div class="d-flex align-items-center justify-content-between mb-3">
         <div>
             <h4 class="fw-bold mb-1" style="color:#1f2937;">📊 Báo cáo &amp; Thống kê</h4>
-            <p class="text-muted mb-0" style="font-size:0.85rem;">Chọn kỳ thống kê bên dưới — <strong>Strategy
-                    Pattern</strong> sẽ tự áp dụng chiến lược phù hợp.</p>
-        </div>
-        <div class="d-flex gap-2">
-            <span class="badge bg-purple text-white"
-                style="background:#8b5cf6!important;border-radius:20px;padding:6px 14px;font-size:0.75rem;">
-                <i class="bi bi-shuffle"></i> Strategy
-            </span>
-            <span class="badge text-white"
-                style="background:#10b981!important;border-radius:20px;padding:6px 14px;font-size:0.75rem;">
-                <i class="bi bi-eye"></i> Observer
-            </span>
+            <p class="text-muted mb-0" style="font-size:0.85rem;">Chọn kỳ thống kê bên dưới.</p>
         </div>
     </div>
 
@@ -401,7 +390,7 @@
                 <div class="chart-title">
                     <i class="bi bi-graph-up-arrow text-success"></i>
                     Biểu đồ doanh thu
-                    <span class="badge-pattern badge-strategy">Strategy Pattern</span>
+
                 </div>
                 <canvas id="revenueChart" height="110"></canvas>
             </div>
@@ -461,7 +450,7 @@
                 <div class="chart-title">
                     <i class="bi bi-trophy text-warning"></i>
                     Top sản phẩm bán chạy
-                    <span class="badge-pattern badge-strategy">Strategy Pattern</span>
+
                 </div>
                 <table class="top-table" th:if="${report.topProducts != null and !report.topProducts.isEmpty()}">
                     <thead>
@@ -517,45 +506,13 @@
 
     <!-- ===== ROW 4: Design Pattern Info + Audit Log ===== -->
     <div class="row g-3">
-        <!-- Giải thích 2 design patterns -->
-        <div class="col-lg-4">
-            <div class="chart-card h-100">
-                <div class="chart-title">
-                    <i class="bi bi-braces-asterisk" style="color:#8b5cf6;"></i>
-                    Design Patterns Sử dụng
-                </div>
-                <div class="pattern-info strategy mb-3">
-                    <div class="pi-icon">🎯</div>
-                    <div>
-                        <div class="pi-title" style="color:#7c3aed;">Strategy Pattern</div>
-                        <div class="pi-desc">
-                            Đóng gói chiến lược thống kê theo ngày/tháng/năm thành các class riêng
-                            (<code>DailyReportStrategy</code>, <code>MonthlyReportStrategy</code>,
-                            <code>YearlyReportStrategy</code>).
-                            <code>ReportContext</code> chọn và thực thi tại runtime khi bạn bấm tab.
-                        </div>
-                    </div>
-                </div>
-                <div class="pattern-info observer">
-                    <div class="pi-icon">👁️</div>
-                    <div>
-                        <div class="pi-title" style="color:#059669;">Observer Pattern</div>
-                        <div class="pi-desc">
-                            Mỗi khi bạn xem báo cáo, <code>ReportEventPublisher</code> kích hoạt
-                            <code>ReportAuditObserver</code> → tự động ghi lịch sử vào DB
-                            mà không cần viết thêm code trong Controller.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         <!-- Lịch sử xem báo cáo (Observer ghi) -->
         <div class="col-lg-8">
             <div class="chart-card h-100">
                 <div class="chart-title">
                     <i class="bi bi-clock-history text-success"></i>
                     Lịch sử xem báo cáo
-                    <span class="badge-pattern badge-observer">Observer Pattern</span>
+
                 </div>
                 <div th:if="${auditLogs != null and !auditLogs.isEmpty()}" style="overflow-x:auto;">
                     <table class="top-table audit-table">
@@ -564,7 +521,7 @@
                                 <th>Người xem</th>
                                 <th>Loại báo cáo</th>
                                 <th>Thời điểm</th>
-                                <th>Pattern</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -581,9 +538,7 @@
                                     <span style="font-size:0.82rem;" th:text="${log.reportTypeLabel}">-</span>
                                 </td>
                                 <td style="color:#6b7280;" th:text="${log.formattedViewedAt}">-</td>
-                                <td>
-                                    <span class="pattern-badge badge-observer">Observer</span>
-                                </td>
+
                             </tr>
                         </tbody>
                     </table>
