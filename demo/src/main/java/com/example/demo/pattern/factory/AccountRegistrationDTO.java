@@ -1,4 +1,4 @@
-package com.example.demo.factory;
+package com.example.demo.pattern.factory;
 
 import com.example.demo.entity.AccountRole;
 

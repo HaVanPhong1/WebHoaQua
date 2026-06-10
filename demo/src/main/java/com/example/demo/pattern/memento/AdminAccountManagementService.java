@@ -1,4 +1,4 @@
-package com.example.demo.memento;
+package com.example.demo.pattern.memento;
 
 import com.example.demo.entity.AccountRole;
 import com.example.demo.entity.UserAccount;
@@ -17,15 +17,11 @@ public class AdminAccountManagementService {
         this.historyManager = historyManager;
     }
 
-    /**
-     * Cập nhật thông tin tài khoản (Có lưu ảnh chụp trạng thái cũ)
-     */
     @Transactional
     public UserAccount updateAccount(Long id, String fullName, String email, AccountRole role, boolean active) {
         UserAccount account = userAccountRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản để cập nhật dữ liệu."));
 
-        // Thực hiện sao lưu trước khi thay đổi trạng thái
         historyManager.saveSnapshot(account);
 
         account.setFullName(fullName);
@@ -36,9 +32,6 @@ public class AdminAccountManagementService {
         return userAccountRepository.save(account);
     }
 
-    /**
-     * Hoàn tác (Undo) hành động cập nhật gần nhất
-     */
     @Transactional
     public UserAccount undo(Long id) {
         UserAccount account = userAccountRepository.findById(id)
@@ -49,8 +42,11 @@ public class AdminAccountManagementService {
             throw new IllegalStateException("Không tồn tại lịch sử thay đổi để khôi phục (Undo) cho tài khoản này!");
         }
 
-        // Thực hiện khôi phục trạng thái thông qua ảnh chụp memento
-        account.restoreFromSnapshot(snapshot);
+        // Đồng bộ hóa thủ công để tránh xung đột import package cũ/mới của đối tượng UserAccount
+        account.setEmail(snapshot.email());
+        account.setFullName(snapshot.fullName());
+        account.setRole(snapshot.role());
+        account.setActive(snapshot.active());
 
         return userAccountRepository.save(account);
     }

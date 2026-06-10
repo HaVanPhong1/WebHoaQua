@@ -1,15 +1,17 @@
-package com.example.demo.observer;
+
+package com.example.demo.pattern.AccountObserver;
 
 import com.example.demo.entity.UserAccount;
-import com.example.demo.factory.AccountFactory;
-import com.example.demo.factory.AccountRegistrationDTO;
+import com.example.demo.pattern.factory.AccountFactory;
+import com.example.demo.pattern.factory.AccountFactory;
+import com.example.demo.pattern.factory.AccountRegistrationDTO;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
+@Service("accountObserverRegistrationService")
 public class AccountRegistrationService {
 
     private final List<AccountFactory> factories;

@@ -99,8 +99,8 @@ public class UserAccount {
     /**
      * Tạo một ảnh chụp (Snapshot) chứa trạng thái hiện tại của đối tượng.
      */
-    public com.example.demo.memento.AccountSnapshot createSnapshot() {
-        return new com.example.demo.memento.AccountSnapshot(
+    public com.example.demo.pattern.memento.AccountSnapshot createSnapshot() {
+        return new com.example.demo.pattern.memento.AccountSnapshot(
                 this.id,
                 this.email,
                 this.fullName,
@@ -109,10 +109,7 @@ public class UserAccount {
         );
     }
 
-    /**
-     * Khôi phục trạng thái của đối tượng từ một ảnh chụp cụ thể.
-     */
-    public void restoreFromSnapshot(com.example.demo.memento.AccountSnapshot snapshot) {
+    public void restoreFromSnapshot(com.example.demo.pattern.memento.AccountSnapshot snapshot) {
         if (snapshot != null) {
             this.email = snapshot.email();
             this.fullName = snapshot.fullName();

@@ -2,18 +2,15 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.AccountRole;
 import com.example.demo.entity.Customer;
-import com.example.demo.factory.AccountRegistrationDTO;
-import com.example.demo.observer.AccountRegistrationService;
+import com.example.demo.pattern.factory.AccountRegistrationDTO;
+import com.example.demo.pattern.AccountObserver.AccountRegistrationService;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.UserAccountRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -26,7 +23,7 @@ public class RegistrationController {
 
     public RegistrationController(CustomerRepository customerRepository,
                                   UserAccountRepository userAccountRepository,
-                                  AccountRegistrationService accountRegistrationService) {
+                                  @Qualifier("accountObserverRegistrationService") AccountRegistrationService accountRegistrationService) {
         this.customerRepository = customerRepository;
         this.userAccountRepository = userAccountRepository;
         this.accountRegistrationService = accountRegistrationService;
@@ -47,7 +44,6 @@ public class RegistrationController {
             Model model,
             RedirectAttributes redirectAttributes) {
 
-        // --- Bước 1: Kiểm tra tính hợp lệ của dữ liệu (Validation) ---
         if (customer.getEmail() == null || customer.getEmail().isBlank()) {
             model.addAttribute("error", "Email là bắt buộc.");
             return "register";
@@ -72,13 +68,8 @@ public class RegistrationController {
             model.addAttribute("error", "Tên đăng nhập đã được sử dụng. Vui lòng dùng tên đăng nhập khác.");
             return "register";
         }
-        if (userAccountRepository.existsByEmail(customer.getEmail())) {
-            model.addAttribute("error", "Email đã được sử dụng bởi tài khoản khác.");
-            return "register";
-        }
 
         try {
-            // --- Bước 2: Đóng gói dữ liệu vào DTO ---
             AccountRegistrationDTO registrationDTO = new AccountRegistrationDTO(
                     username,
                     password,
@@ -86,10 +77,9 @@ public class RegistrationController {
                     customer.getName(),
                     customer.getPhone(),
                     customer.getAddress(),
-                    AccountRole.ROLE_CUSTOMER // Form đăng ký công khai mặc định là khách hàng mua sản phẩm
+                    AccountRole.ROLE_CUSTOMER
             );
 
-            // Gửi dữ liệu xử lý tập trung qua chuỗi Design Patterns
             accountRegistrationService.register(registrationDTO);
 
         } catch (Exception e) {

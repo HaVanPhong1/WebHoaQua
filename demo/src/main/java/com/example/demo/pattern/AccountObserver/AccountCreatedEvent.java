@@ -1,4 +1,4 @@
-package com.example.demo.observer;
+package com.example.demo.pattern.AccountObserver;
 
 import com.example.demo.entity.UserAccount;
 

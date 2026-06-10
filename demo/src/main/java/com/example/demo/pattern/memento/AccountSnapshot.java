@@ -1,4 +1,4 @@
-package com.example.demo.memento;
+package com.example.demo.pattern.memento;
 
 import com.example.demo.entity.AccountRole;
 
