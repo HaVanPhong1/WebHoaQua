@@ -2,5 +2,9 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+<<<<<<< HEAD
+=======
+    <mapping directory="$PROJECT_DIR$/WebHoaQua" vcs="Git" />
+>>>>>>> 0a16a0d (Fix conflicts after pulling main)
   </component>
 </project>
