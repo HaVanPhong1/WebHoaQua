@@ -1,14 +1,12 @@
 package com.example.demo.controller;
+
 import com.example.demo.entity.AccountRole;
 import com.example.demo.entity.Customer;
-import com.example.demo.entity.UserAccount;
+import com.example.demo.factory.AccountRegistrationDTO;
+import com.example.demo.observer.AccountRegistrationService;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.UserAccountRepository;
-import com.example.demo.service.AccountService;
-
-
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,14 +22,14 @@ public class RegistrationController {
 
     private final CustomerRepository customerRepository;
     private final UserAccountRepository userAccountRepository;
-    private final AccountService accountService;
+    private final AccountRegistrationService accountRegistrationService;
 
     public RegistrationController(CustomerRepository customerRepository,
                                   UserAccountRepository userAccountRepository,
-                                  AccountService accountService) {
+                                  AccountRegistrationService accountRegistrationService) {
         this.customerRepository = customerRepository;
         this.userAccountRepository = userAccountRepository;
-        this.accountService = accountService;
+        this.accountRegistrationService = accountRegistrationService;
     }
 
     @GetMapping
@@ -41,7 +39,6 @@ public class RegistrationController {
     }
 
     @PostMapping("/save")
-    @Transactional
     public String registerCustomer(
             @ModelAttribute Customer customer,
             @RequestParam String username,
@@ -50,7 +47,7 @@ public class RegistrationController {
             Model model,
             RedirectAttributes redirectAttributes) {
 
-        // Validate input
+        // --- Bước 1: Kiểm tra tính hợp lệ của dữ liệu (Validation) ---
         if (customer.getEmail() == null || customer.getEmail().isBlank()) {
             model.addAttribute("error", "Email là bắt buộc.");
             return "register";
@@ -81,19 +78,19 @@ public class RegistrationController {
         }
 
         try {
-            // 1. Save customer
-            customer.setActive(true);
-            customerRepository.save(customer);
+            // --- Bước 2: Đóng gói dữ liệu vào DTO ---
+            AccountRegistrationDTO registrationDTO = new AccountRegistrationDTO(
+                    username,
+                    password,
+                    customer.getEmail(),
+                    customer.getName(),
+                    customer.getPhone(),
+                    customer.getAddress(),
+                    AccountRole.ROLE_CUSTOMER // Form đăng ký công khai mặc định là khách hàng mua sản phẩm
+            );
 
-            // 2. Save user account linked to the customer (password will be BCrypt-encoded inside accountService.save)
-            UserAccount account = new UserAccount();
-            account.setUsername(username);
-            account.setPassword(password);
-            account.setFullName(customer.getName());
-            account.setEmail(customer.getEmail());
-            account.setRole(AccountRole.ROLE_CUSTOMER);
-            account.setActive(true);
-            accountService.save(account);
+            // Gửi dữ liệu xử lý tập trung qua chuỗi Design Patterns
+            accountRegistrationService.register(registrationDTO);
 
         } catch (Exception e) {
             model.addAttribute("customer", customer);
