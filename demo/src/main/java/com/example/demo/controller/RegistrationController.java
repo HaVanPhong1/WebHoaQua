@@ -1,21 +1,16 @@
 package com.example.demo.controller;
+
 import com.example.demo.entity.AccountRole;
 import com.example.demo.entity.Customer;
-import com.example.demo.entity.UserAccount;
+import com.example.demo.pattern.factory.AccountRegistrationDTO;
+import com.example.demo.pattern.AccountObserver.AccountRegistrationService;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.UserAccountRepository;
-import com.example.demo.service.AccountService;
-
-
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -24,14 +19,14 @@ public class RegistrationController {
 
     private final CustomerRepository customerRepository;
     private final UserAccountRepository userAccountRepository;
-    private final AccountService accountService;
+    private final AccountRegistrationService accountRegistrationService;
 
     public RegistrationController(CustomerRepository customerRepository,
                                   UserAccountRepository userAccountRepository,
-                                  AccountService accountService) {
+                                  @Qualifier("accountObserverRegistrationService") AccountRegistrationService accountRegistrationService) {
         this.customerRepository = customerRepository;
         this.userAccountRepository = userAccountRepository;
-        this.accountService = accountService;
+        this.accountRegistrationService = accountRegistrationService;
     }
 
     @GetMapping
@@ -41,7 +36,6 @@ public class RegistrationController {
     }
 
     @PostMapping("/save")
-    @Transactional
     public String registerCustomer(
             @ModelAttribute Customer customer,
             @RequestParam String username,
@@ -50,7 +44,6 @@ public class RegistrationController {
             Model model,
             RedirectAttributes redirectAttributes) {
 
-        // Validate input
         if (customer.getEmail() == null || customer.getEmail().isBlank()) {
             model.addAttribute("error", "Email là bắt buộc.");
             return "register";
@@ -75,25 +68,19 @@ public class RegistrationController {
             model.addAttribute("error", "Tên đăng nhập đã được sử dụng. Vui lòng dùng tên đăng nhập khác.");
             return "register";
         }
-        if (userAccountRepository.existsByEmail(customer.getEmail())) {
-            model.addAttribute("error", "Email đã được sử dụng bởi tài khoản khác.");
-            return "register";
-        }
 
         try {
-            // 1. Save customer
-            customer.setActive(true);
-            customerRepository.save(customer);
+            AccountRegistrationDTO registrationDTO = new AccountRegistrationDTO(
+                    username,
+                    password,
+                    customer.getEmail(),
+                    customer.getName(),
+                    customer.getPhone(),
+                    customer.getAddress(),
+                    AccountRole.ROLE_CUSTOMER
+            );
 
-            // 2. Save user account linked to the customer (password will be BCrypt-encoded inside accountService.save)
-            UserAccount account = new UserAccount();
-            account.setUsername(username);
-            account.setPassword(password);
-            account.setFullName(customer.getName());
-            account.setEmail(customer.getEmail());
-            account.setRole(AccountRole.ROLE_CUSTOMER);
-            account.setActive(true);
-            accountService.save(account);
+            accountRegistrationService.register(registrationDTO);
 
         } catch (Exception e) {
             model.addAttribute("customer", customer);

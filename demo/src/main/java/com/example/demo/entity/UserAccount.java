@@ -91,4 +91,30 @@ public class UserAccount {
     public void setActive(boolean active) {
         this.active = active;
     }
+
+    // ===================================================
+    // MEMENTO PATTERN - ORIGINATOR METHODS
+    // ===================================================
+
+    /**
+     * Tạo một ảnh chụp (Snapshot) chứa trạng thái hiện tại của đối tượng.
+     */
+    public com.example.demo.pattern.memento.AccountSnapshot createSnapshot() {
+        return new com.example.demo.pattern.memento.AccountSnapshot(
+                this.id,
+                this.email,
+                this.fullName,
+                this.role,
+                this.active
+        );
+    }
+
+    public void restoreFromSnapshot(com.example.demo.pattern.memento.AccountSnapshot snapshot) {
+        if (snapshot != null) {
+            this.email = snapshot.email();
+            this.fullName = snapshot.fullName();
+            this.role = snapshot.role();
+            this.active = snapshot.active();
+        }
+    }
 }
