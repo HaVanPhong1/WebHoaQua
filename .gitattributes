@@ -1,0 +1,14 @@
+# Normalize line endings for this repository
+* text=auto
+
+# Prefer LF for source and text files
+*.java text eol=lf
+*.md text eol=lf
+*.xml text eol=lf
+*.properties text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+
+# Keep Windows batch files as CRLF
+*.bat text eol=crlf
