@@ -1,0 +1,34 @@
+[33mcommit b375f4e0da7775eddc2b3363cdecb03d04db027b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mthêm-chức-năng-khuyến-mãi-và-tùy-chỉnh-khi-mua-hoa-quả[m[33m)[m
+Merge: be76bf3 7cd0afa
+Author: Ha Van Phong <2351170610@e.tlu.edu.vn>
+Date:   Wed Jun 10 23:31:09 2026 +0700
+
+    Merge feature/report - add report and discount features
+
+ .idea/.gitignore                                   |   5 [32m+[m
+ .idea/WebHoaQua.iml                                |   9 [32m+[m
+ .idea/compiler.xml                                 |  18 [32m+[m
+ .idea/encodings.xml                                |   6 [32m+[m
+ .idea/jarRepositories.xml                          |  20 [32m+[m
+ .idea/misc.xml                                     |  14 [32m+[m
+ .idea/modules.xml                                  |   8 [32m+[m
+ .idea/vcs.xml                                      |   6 [32m+[m
+ .../example/demo/controller/ReportController.java  |  70 [32m+[m[31m-[m
+ .../java/com/example/demo/dto/ReportDataDto.java   |  54 [32m++[m
+ .../java/com/example/demo/dto/TopProductDto.java   |  22 [32m+[m
+ .../com/example/demo/entity/ReportAuditLog.java    |  49 [32m++[m
+ .../demo/pattern/observer/ReportAuditObserver.java |  31 [32m+[m
+ .../example/demo/pattern/observer/ReportEvent.java |  28 [32m+[m
+ .../pattern/observer/ReportEventPublisher.java     |  41 [32m++[m
+ .../demo/pattern/observer/ReportObserver.java      |  17 [32m+[m
+ .../demo/pattern/strategy/DailyReportStrategy.java |  86 [32m+++[m
+ .../pattern/strategy/MonthlyReportStrategy.java    |  79 [32m+++[m
+ .../demo/pattern/strategy/ReportContext.java       |  42 [32m++[m
+ .../demo/pattern/strategy/ReportStrategy.java      |  28 [32m+[m
+ .../pattern/strategy/YearlyReportStrategy.java     |  79 [32m+++[m
+ .../demo/repository/OrderItemRepository.java       |  29 [32m+[m[31m-[m
+ .../demo/repository/ReportAuditLogRepository.java  |  15 [32m+[m
+ .../demo/repository/ShopOrderRepository.java       |  13 [32m+[m[31m-[m
+ .../com/example/demo/service/ReportService.java    |  68 [32m++[m
+ demo/src/main/resources/templates/reports.html     | 780 [32m++++++++++++++++++[m[31m---[m
+ 26 files changed, 1500 insertions(+), 117 deletions(-)

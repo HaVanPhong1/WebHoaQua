@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
@@ -49,6 +50,13 @@ public class ShopController {
     private final ShopOrderRepository shopOrderRepository;
     private final UserAccountRepository userAccountRepository;
     private final com.example.demo.service.discount.DiscountService discountService;
+
+    // Decorator mapping to eliminate if-else statements
+    private final Map<String, Function<ProductComponent, ProductComponent>> decoratorMap = Map.of(
+        "engrave", EngravingDecorator::new,
+        "peel", PeelingDecorator::new,
+        "wrap", WrappingDecorator::new
+    );
 
     public ShopController(ProductRepository productRepository, 
                           CategoryRepository categoryRepository,
@@ -96,18 +104,14 @@ public class ShopController {
             session.setAttribute("cart", cart);
         }
 
-        // Apply Decorator Pattern
+        // Apply Decorator Pattern using Map to eliminate if-else
         ProductComponent component = new BaseProductComponent(product);
         List<String> selectedAddons = addons != null ? Arrays.asList(addons) : new ArrayList<>();
         
-        if (selectedAddons.contains("engrave")) {
-            component = new EngravingDecorator(component);
-        }
-        if (selectedAddons.contains("peel")) {
-            component = new PeelingDecorator(component);
-        }
-        if (selectedAddons.contains("wrap")) {
-            component = new WrappingDecorator(component);
+        for (String addonCode : selectedAddons) {
+            if (decoratorMap.containsKey(addonCode)) {
+                component = decoratorMap.get(addonCode).apply(component);
+            }
         }
 
         // Generate a unique key based on productId and selected addons
