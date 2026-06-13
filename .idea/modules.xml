@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/WebHoaQua.iml" filepath="$PROJECT_DIR$/.idea/WebHoaQua.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WebHoaQua-DesignPattern.iml" filepath="$PROJECT_DIR$/WebHoaQua-DesignPattern.iml" />
     </modules>
   </component>
 </project>
