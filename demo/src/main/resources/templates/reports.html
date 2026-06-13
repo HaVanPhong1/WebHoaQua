@@ -5,6 +5,22 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        /* ===== HỖ TRỢ IN ẤN BÁO CÁO (PDF) ===== */
+        @media print {
+            .sidebar, nav, .navbar, .report-tabs, button, .btn, .d-flex.gap-2, .audit-card {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .chart-card, .stat-card {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                page-break-inside: avoid;
+            }
+        }
+
         /* ===== TAB BÁO CÁO ===== */
         .report-tabs {
             display: flex;
@@ -311,10 +327,18 @@
     </style>
 
     <!-- ===== HEADER: Tab chọn loại báo cáo (Strategy Pattern) ===== -->
-    <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
         <div>
             <h4 class="fw-bold mb-1" style="color:#1f2937;">📊 Báo cáo &amp; Thống kê</h4>
             <p class="text-muted mb-0" style="font-size:0.85rem;">Chọn kỳ thống kê bên dưới.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="bi bi-printer"></i> In báo cáo / Lưu PDF
+            </button>
+            <a th:href="@{/admin/reports/export(type=${currentType})}" class="btn btn-success btn-sm rounded-pill px-3">
+                <i class="bi bi-file-earmark-excel"></i> Xuất báo cáo Excel
+            </a>
         </div>
     </div>
 

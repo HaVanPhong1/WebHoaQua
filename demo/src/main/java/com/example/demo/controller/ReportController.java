@@ -58,4 +58,73 @@ public class ReportController {
         model.addAttribute("auditLogs", auditLogRepository.findTop10ByOrderByViewedAtDesc());
         return "reports";
     }
+
+    /**
+     * Xuất dữ liệu thống kê báo cáo ra file CSV (UTF-8 có BOM hỗ trợ tốt cho Excel)
+     */
+    @GetMapping("/export")
+    public void exportReport(
+            @RequestParam(defaultValue = "daily") String type,
+            Authentication authentication,
+            jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+        
+        String username = (authentication != null) ? authentication.getName() : "anonymous";
+        ReportDataDto reportData = reportService.buildReport(type, username);
+        
+        String filename = "bao-cao-thong-ke-" + type + ".csv";
+        response.setContentType("text/csv; charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        
+        // Ghi BOM UTF-8 (EF BB BF) để Excel nhận dạng tiếng Việt có dấu
+        response.getOutputStream().write(new byte[] { (byte)0xEF, (byte)0xBB, (byte)0xBF });
+        
+        java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.OutputStreamWriter(response.getOutputStream(), java.nio.charset.StandardCharsets.UTF_8));
+        
+        writer.println("BÁO CÁO THỐNG KÊ CHI TIẾT");
+        writer.println("Loại báo cáo," + (type.equals("daily") ? "Theo ngày" : type.equals("monthly") ? "Theo tháng" : "Theo năm"));
+        writer.println("Người xuất," + username);
+        writer.println("Thời gian xuất," + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+        writer.println();
+        
+        writer.println("1. CHỈ SỐ TỔNG QUAN");
+        writer.println("Tổng doanh thu," + reportData.getTotalRevenue() + "₫");
+        writer.println("Tổng đơn hàng," + reportData.getTotalOrders());
+        writer.println("Đơn đã giao," + reportData.getDeliveredOrders());
+        writer.println("Đơn mới," + reportData.getNewOrders());
+        writer.println("Đơn đã hủy," + reportData.getCancelledOrders());
+        writer.println();
+        
+        writer.println("2. XU HƯỚNG DOANH THU");
+        writer.println("Thời gian,Doanh thu (₫)");
+        if (reportData.getRevenueLabels() != null && reportData.getRevenueValues() != null) {
+            for (int i = 0; i < reportData.getRevenueLabels().size(); i++) {
+                String label = reportData.getRevenueLabels().get(i);
+                java.math.BigDecimal val = i < reportData.getRevenueValues().size() ? reportData.getRevenueValues().get(i) : java.math.BigDecimal.ZERO;
+                writer.println(label + "," + val);
+            }
+        }
+        writer.println();
+        
+        writer.println("3. TOP SẢN PHẨM BÁN CHẠY");
+        writer.println("Thứ hạng,Sản phẩm,Đã bán (kg),Doanh thu (₫)");
+        if (reportData.getTopProducts() != null) {
+            for (int i = 0; i < reportData.getTopProducts().size(); i++) {
+                com.example.demo.dto.TopProductDto p = reportData.getTopProducts().get(i);
+                writer.println((i + 1) + "," + p.getProductName() + "," + p.getTotalSold() + "," + p.getTotalRevenue());
+            }
+        }
+        writer.println();
+        
+        writer.println("4. DOANH THU THEO DANH MỤC");
+        writer.println("Danh mục,Doanh thu (₫)");
+        if (reportData.getCategoryLabels() != null && reportData.getCategoryRevenues() != null) {
+            for (int i = 0; i < reportData.getCategoryLabels().size(); i++) {
+                String label = reportData.getCategoryLabels().get(i);
+                java.math.BigDecimal rev = i < reportData.getCategoryRevenues().size() ? reportData.getCategoryRevenues().get(i) : java.math.BigDecimal.ZERO;
+                writer.println(label + "," + rev);
+            }
+        }
+        
+        writer.flush();
+    }
 }
