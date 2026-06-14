@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "products")
-public class Product {
+public class Product implements Cloneable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -92,5 +92,17 @@ public class Product {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    @Override
+    public Product clone() {
+        try {
+            Product cloned = (Product) super.clone();
+            cloned.id = null; // Reset ID for JPA to auto-generate a new one
+            cloned.name = "[Bản sao] " + this.name;
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

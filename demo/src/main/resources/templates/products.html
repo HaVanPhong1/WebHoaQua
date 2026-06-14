@@ -39,6 +39,7 @@
                     <td th:text="${product.stock}"></td>
                     <td th:text="${product.image}"></td>
                     <td class="text-center">
+                        <a class="btn btn-sm btn-info me-1 btn-clone" th:href="@{/admin/products/clone/{id}(id=${product.id})}" th:data-name="${product.name}">Nhân bản</a>
                         <a class="btn btn-sm btn-warning me-1" th:href="@{/admin/products/edit/{id}(id=${product.id})}">Sửa</a>
                         <a class="btn btn-sm btn-danger btn-delete" th:href="@{/admin/products/delete/{id}(id=${product.id})}" th:data-name="${product.name}">Xóa</a>
                     </td>
@@ -53,6 +54,14 @@
                     btn.addEventListener('click', function(e) {
                         var name = this.getAttribute('data-name') || 'mục này';
                         if (!confirm('Bạn có chắc chắn muốn xóa "' + name + '" không?\n\nHành động này không thể hoàn tác!')) {
+                            e.preventDefault();
+                        }
+                    });
+                });
+                document.querySelectorAll('.btn-clone').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        var name = this.getAttribute('data-name') || 'sản phẩm này';
+                        if (!confirm('Bạn có chắc chắn muốn nhân bản sản phẩm "' + name + '" không?')) {
                             e.preventDefault();
                         }
                     });

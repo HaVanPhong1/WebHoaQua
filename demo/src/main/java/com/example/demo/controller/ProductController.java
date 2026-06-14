@@ -77,4 +77,21 @@ public class ProductController {
         }
         return "redirect:/admin/products";
     }
+
+    @GetMapping("/clone/{id}")
+    public String clone(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            Optional<Product> originalOpt = productRepository.findById(id);
+            if (originalOpt.isPresent()) {
+                Product cloned = originalOpt.get().clone();
+                productRepository.save(cloned);
+                redirectAttributes.addFlashAttribute("successMessage", "Nhân bản sản phẩm thành công!");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy sản phẩm cần nhân bản!");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nhân bản thất bại: " + e.getMessage());
+        }
+        return "redirect:/admin/products";
+    }
 }
